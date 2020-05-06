@@ -15,7 +15,7 @@ router.post('/', validateUser, (req, res) => {
       res.status(200).json(insertedUser)
     })
     .catch(() => {
-      res.status(500).json({ errorMessage: 'The user could not be inserted into the database' })
+      res.status(500).json({ errorMessage: 'The user could not be inserted into the database.' })
     })
   
 
@@ -25,21 +25,30 @@ router.post('/', validateUser, (req, res) => {
 router.post('/:id/posts', validatePost, validateUserId, (req, res) => {
   // insert new post
   postData.insert({ ...req.body, user_id: req.params.id })
-    .then(newPost => {
-      // returns the new post
-      res.status(200).json(newPost);
+    .then(insertedPost => {
+      // returns the inserted post
+      res.status(200).json(insertedPost)
     })
   .catch(() => {
-    res.status(500).json({ errorMessage: 'The post could not be inserted into the database' });
+    res.status(500).json({ errorMessage: 'The post could not be inserted into the database.' })
   })
 })
 
+// gets array of all of the users
 router.get('/', (req, res) => {
-  // do your magic!
+  userData.get()
+    .then(allUsers => {
+      // returns all users
+      res.status(200).json(allUsers)
+    })
+    .catch(() =>{
+      res.status(500).json({ message: 'There was an error fetching users from thedatabase.' })
+    })
 })
 
+// get user by its id
 router.get('/:id', (req, res) => {
-  // do your magic!
+  
 })
 
 router.get('/:id/posts', (req, res) => {
