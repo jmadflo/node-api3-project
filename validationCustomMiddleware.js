@@ -25,7 +25,14 @@ function validateUser(req, res, next) {
 }
 
 function validatePost(req, res, next) {
-
+    // send 400 error if req.body is missing or if req.body.text is missing
+    if (!req.body){
+        res.status(400).json({ message: "missing post data" })
+    } else if (!req.body.text){
+        res.status(400).json({ message: "missing required text field" });
+    } else {
+        next()
+    }
 }
 
 module.exports = { validateUserId, validateUser, validatePost }
