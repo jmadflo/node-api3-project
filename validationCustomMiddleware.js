@@ -8,14 +8,24 @@ function validateUserId(req, res, next) {
             next()
         })
         .catch(() => {
-            res.status(400).json({ message: "invalid user id" });
+            res.status(400).json({ message: "invalid user id" })
         })
 }
 
 function validateUser(req, res, next) {
-
+    // send 400 error if req.body is missing or if req.body.name is missing
+    if (!req.body){
+        res.status(400).json({ message: "missing user data" })
+    } else if (!req.body.name){
+        res.status(400).json({ message: "missing required name field" });
+    } else {
+        next()
+    }
+    
 }
 
-// validatePost()
+function validatePost(req, res, next) {
+
+}
 
 module.exports = { validateUserId, validateUser, validatePost }
