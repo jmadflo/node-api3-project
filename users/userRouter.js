@@ -1,5 +1,6 @@
 const express = require('express')
 const userData = require('./userDb')
+const postData = require('../posts/postDb')
 
 const router = express.Router()
 
@@ -20,9 +21,17 @@ router.post('/', validateUser, (req, res) => {
 
 })
 
-// inserts new post
-router.post('/:id/posts', (req, res) => {
-  // 
+// inserts new post and does validation through middleware
+router.post('/:id/posts', validatePost, validateUserId, (req, res) => {
+  // insert new post
+  postData.insert({ ...req.body, user_id: req.params.id })
+    .then(newPost => {
+      // returns the new post
+      res.status(200).json(newPost);
+    })
+  .catch(() => {
+    res.status(500).json({ errorMessage: 'The post could not be inserted into the database' });
+  })
 })
 
 router.get('/', (req, res) => {
