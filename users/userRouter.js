@@ -4,6 +4,8 @@ const postData = require('../posts/postDb')
 
 const router = express.Router()
 
+// these routes have a base url of http://localhost:7000/api/users
+
 // inserts new use into database
 router.post('/', validateUser, (req, res) => {
   // do your magic!
@@ -15,7 +17,7 @@ router.post('/', validateUser, (req, res) => {
       res.status(200).json(insertedUser)
     })
     .catch(() => {
-      res.status(500).json({ errorMessage: 'The user could not be inserted into the database.' })
+      res.status(500).json({ message: 'The user could not be inserted into the database.' })
     })
 })
 
@@ -28,7 +30,7 @@ router.post('/:id/posts', validatePost, validateUserId, (req, res) => {
       res.status(200).json(insertedPost)
     })
   .catch(() => {
-    res.status(500).json({ errorMessage: 'The post could not be inserted into the database.' })
+    res.status(500).json({ message: 'The post could not be inserted into the database.' })
   })
 })
 
@@ -40,33 +42,44 @@ router.get('/', (req, res) => {
       res.status(200).json(allUsers)
     })
     .catch(() =>{
-      res.status(500).json({ errorMessage: 'The users could not be retrieved from the database.' })
+      res.status(500).json({ message: 'The users could not be retrieved from the database.' })
     })
 })
 
 // get user by its id
-router.get('/:id', (req, res) => {
+router.get('/:id', validateUserId, (req, res) => {
   userData.getById(req.params.id)
     .then(singleUser => {
+      // returns the one user with an id of req.user.id
       res.status(200).json(singleUser)
     })
     .catch(() => {
-      res.status(404).json({ errorMessage: 'The user could not be retrieved from the database.' })
+      res.status(500).json({ message: 'The user could not be retrieved from the database.' })
     })
 })
 
-router.get('/:id/posts', (req, res) => {
+// return all posts for a particular user
+router.get('/:id/posts', validateUserId, (req, res) => {
   userData.getUserPosts(req.params.id)
-    .then(posts => {
-      res.status(200).json(posts);
+    .then(allPostsForUser => {
+      // return all posts for user with an id of req.user.id
+      res.status(200).json(allPostsForUser)
     })
     .catch(() => {
-      res.status(404).json({ errorMessage: 'The user could not be retrieved from the databasee.' });
+      res.status(500).json({ message: 'The user could not be retrieved from the database.' })
     })
   })
 
-router.delete('/:id', (req, res) => {
-  // do your magic!
+// deletes user with an id of req.params.id
+router.delete('/:id', validateUserId, (req, res) => {
+  userData.remove(req.params.id)
+    .then(() => {
+      // only returns a confirmation message
+      res.status(200).json({ message: `The user with an id of ${req.params.id} was deleted from the database.` })
+    })
+    .catch(() => {
+      res.status(500).json({ message: `The users with an id of ${req.params.id} could not be deleted from the database.` })
+    })
 })
 
 router.put('/:id', (req, res) => {
