@@ -17,8 +17,6 @@ router.post('/', validateUser, (req, res) => {
     .catch(() => {
       res.status(500).json({ errorMessage: 'The user could not be inserted into the database.' })
     })
-  
-
 })
 
 // inserts new post and does validation through middleware
@@ -42,18 +40,30 @@ router.get('/', (req, res) => {
       res.status(200).json(allUsers)
     })
     .catch(() =>{
-      res.status(500).json({ message: 'There was an error fetching users from thedatabase.' })
+      res.status(500).json({ errorMessage: 'The users could not be retrieved from the database.' })
     })
 })
 
 // get user by its id
 router.get('/:id', (req, res) => {
-  
+  userData.getById(req.params.id)
+    .then(singleUser => {
+      res.status(200).json(singleUser)
+    })
+    .catch(() => {
+      res.status(404).json({ errorMessage: 'The user could not be retrieved from the database.' })
+    })
 })
 
 router.get('/:id/posts', (req, res) => {
-  // do your magic!
-})
+  userData.getUserPosts(req.params.id)
+    .then(posts => {
+      res.status(200).json(posts);
+    })
+    .catch(() => {
+      res.status(404).json({ errorMessage: 'The user could not be retrieved from the databasee.' });
+    })
+  })
 
 router.delete('/:id', (req, res) => {
   // do your magic!
