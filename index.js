@@ -1,7 +1,10 @@
+// for environment variables
+require('dotenv').config()
+
 const server = require('./server')
 
-const port = process.env.PORT || 7000
+const PORT = process.env.PORT || 7000
 
-server.listen(port, () => {
-    console.log(`API is working on localhost:${port}`)
+server.listen(PORT, () => {
+    console.log(`API is working on localhost:${PORT}`)
 })

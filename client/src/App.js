@@ -60,7 +60,10 @@ function App() {
 
   // get posts for a specific user by user id
   const getPostsByUserId = id => {
-    axios.get(`http://localhost:7000/api/users/${id || userFormValues.id || postFormValues.id}/posts`)
+    if (typeof id !== 'number') {
+      id = userFormValues.id || postFormValues.user_id
+    }
+    axios.get(`http://localhost:7000/api/users/${id}/posts`)
       .then(response => {
         console.log(response)
         setDataToRender(response.data)
