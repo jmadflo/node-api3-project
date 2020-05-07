@@ -165,7 +165,7 @@ function App() {
   const routeAndGetUserPosts = (id, name) => {
     setClickedUser(name)
     getPostsByUserId(id)
-    history.push(`/userinfo/${id}`)
+    history.push(`/users/${id}`)
   }
   return (
     <Switch>
@@ -236,7 +236,7 @@ function App() {
           })}
         </div>
       </Route>
-      <Route path='/userinfo/:id'>
+      <Route path='/users/:id'>
         <UserInfo dataToRender={dataToRender} clickedUser={clickedUser}/>
       </Route>
     </Switch>
