@@ -87,7 +87,7 @@ router.delete('/:id', validateUserId, (req, res) => {
 })
 
 router.put('/:id', validateUserId, validateUser, (req, res) => {
-  // first user with id of req.params.id is updated
+  // first, user with id of req.params.id is updated
   userData.update(req.params.id, req.body)
     .then(numberOfUpdatedUsers => {
       // then, if update is successful, get the updated user and return it to the client
@@ -143,5 +143,10 @@ function validatePost(req, res, next) {
     next()
   }
 }
+
+// module.exports = {
+//   validatePost,
+//   default: router
+// }
 
 module.exports = router

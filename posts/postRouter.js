@@ -1,5 +1,6 @@
 const express = require('express')
 const postData = require('../posts/postDb')
+// const { validatePost } = require('../users/userRouter')
 
 const router = express.Router()
 
@@ -27,7 +28,7 @@ router.get('/:id', validatePostId, (req, res) => {
     })
 })
 
-router.delete('/:id', validatePostId, (req, res) => {
+router.delete('/:id', validatePostId, validatePost, (req, res) => {
   postData.remove(req.params.id)
     .then(numberOfDeletedPosts => {
       // only returns a confirmation message
@@ -42,8 +43,26 @@ router.delete('/:id', validatePostId, (req, res) => {
     })
 })
 
-router.put('/:id', (req, res) => {
-  // do your magic!
+router.put('/:id', validatePostId, validatePost, (req, res) => {
+  // first, post with id of req.params.id is updated
+  postData.update(req.params.id, req.body)
+    .then(numberOfUpdatedPosts => {
+      // then, if update is successful, get the updated post and return it to the client
+      if (numberOfUpdatedPosts === 1) {
+        postData.getById(req.params.id)
+          .then(updatedPost => {
+            res.status(200).json(updatedPost)
+          })
+          .catch(() => {
+            res.status(500).json({ message: `The post with an id of ${req.params.id} could not be retrieved once updated.` })
+          })
+      } else {
+        res.status(500).json({ message: `The post with an id of ${req.params.id} could not be updated.` })
+      }
+    })
+    .catch(() => {
+      res.status(500).json({ message: `The post with an id of ${req.params.id} could not be updated.` })
+    })
 })
 
 // custom middleware
@@ -58,6 +77,17 @@ function validatePostId(req, res, next) {
     .catch(() => {
       res.status(400).json({ message: "invalid post id" })
     })
+}
+
+function validatePost(req, res, next) {
+  // send 400 error if req.body is missing or if req.body.text is missing
+  if (!req.body){
+    res.status(400).json({ message: "missing post data" })
+  } else if (!req.body.text){
+    res.status(400).json({ message: "missing required text field" })
+  } else {
+    next()
+  }
 }
 
 module.exports = router
