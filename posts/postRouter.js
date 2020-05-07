@@ -8,7 +8,7 @@ const router = express.Router()
 router.get('/', (req, res) => {
   postData.get()
     .then(allPosts => {
-      // returns all users
+      // returns all posts
       res.status(200).json(allPosts)
     })
     .catch(() =>{
@@ -17,7 +17,14 @@ router.get('/', (req, res) => {
 })
 
 router.get('/:id', (req, res) => {
-  // do your magic!
+  postData.getById(req.params.id)
+    .then(singlePost => {
+      // returns the one post with an id of req.user.id
+      res.status(200).json(singlePost)
+    })
+    .catch(() => {
+      res.status(500).json({ message: `The post with an id of ${req.params.id} could not be retrieved from the database.` })
+    })
 })
 
 router.delete('/:id', (req, res) => {
