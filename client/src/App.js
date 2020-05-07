@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import axios from 'axios'
+import { Route, useHistory, Switch } from 'react-router-dom'
+import UserInfo from './UserInfo'
 import './App.css'
 
 function App() {
@@ -16,6 +18,10 @@ function App() {
     text: '',
     user_id: ''
   })
+
+  const [ clickedUser, setClickedUser ] = useState('')
+
+  const history = useHistory()
 
   // update form values
   const updateUserForm = event => {
@@ -53,8 +59,8 @@ function App() {
   }
 
   // get posts for a specific user by user id
-  const getPostsByUserId = () => {
-    axios.get(`http://localhost:7000/api/users/${userFormValues.id || postFormValues.id}/posts`)
+  const getPostsByUserId = id => {
+    axios.get(`http://localhost:7000/api/users/${id || userFormValues.id || postFormValues.id}/posts`)
       .then(response => {
         console.log(response)
         setDataToRender(response.data)
@@ -155,72 +161,85 @@ function App() {
       .catch(error => console.log(error))
   }
 
+  // routes to unique url and renders the posts for that user
+  const routeAndGetUserPosts = (id, name) => {
+    setClickedUser(name)
+    getPostsByUserId(id)
+    history.push(`/userinfo/${id}`)
+  }
   return (
-    <div className='App'>
-      <h1>API Tester</h1>
-      <div className='formAndButtons'>
-        <div className='formContainer'>
-          <form>
-            <h2>User Form</h2>
-            <input name='id' placeholder='id' value={userFormValues.id} onChange={updateUserForm}/>
-            <input name='name' placeholder='name' value={userFormValues.name} onChange={updateUserForm}/>
-          </form>
-          <form>
-            <h2>Post Form</h2>
-            <input name='id' placeholder='id' value={postFormValues.id} onChange={updatePostForm}/>
-            <input name='text' placeholder='text' value={postFormValues.text} onChange={updatePostForm}/>
-            <input name='user_id' placeholder='user id' value={postFormValues.user_id} onChange={updatePostForm}/>
-          </form>
+    <Switch>
+      <Route exact path='/'>
+        <div className='App'>
+          <h1>API Tester</h1>
+          <div className='formAndButtons'>
+            <div className='formContainer'>
+              <form>
+                <h2>User Form</h2>
+                <input name='id' placeholder='id' value={userFormValues.id} onChange={updateUserForm}/>
+                <input name='name' placeholder='name' value={userFormValues.name} onChange={updateUserForm}/>
+              </form>
+              <form>
+                <h2>Post Form</h2>
+                <input name='id' placeholder='id' value={postFormValues.id} onChange={updatePostForm}/>
+                <input name='text' placeholder='text' value={postFormValues.text} onChange={updatePostForm}/>
+                <input name='user_id' placeholder='user id' value={postFormValues.user_id} onChange={updatePostForm}/>
+              </form>
+            </div>
+            <div className='buttonContainer'>
+              <button onClick={getAllUsers}>Get All Users</button>
+              <button onClick={getUserById}>Get User By Id</button>
+              <button onClick={getPostsByUserId}>Get Posts By User Id</button>
+              <button onClick={postNewUser}>Post New User</button>
+              <button onClick={postNewPost}>Post New Post</button>
+              <button onClick={deleteUser}>Delete User</button>
+              <button onClick={editUser}>Edit User</button>
+              <button onClick={getAllPosts}>Get All Posts</button>
+              <button onClick={getPostById}>Get Post By Id</button>
+              <button onClick={deletePost}>Delete Post</button>
+              <button onClick={editPost}>Edit Post</button>
+            </div>
+          </div>
+          {/* render data */}
+          {dataToRender.map(instance => {
+            // will render if instance is a user
+            if (instance.name){
+              return (
+                <div key={instance.id} className='instance'>
+                  <p>Id: {instance.id}</p>
+                  <p onClick={() => routeAndGetUserPosts(instance.id, instance.name)}>Name: {instance.name}</p>
+                </div>
+              )
+            } else if (instance.message){ // will render if instance is a message object
+              return (
+                <div key={instance.message} className='instance'>
+                  <p>Message: {instance.message}</p>
+                </div>
+              )
+            } else if (instance.postedBy){ // posts can have postedBy or user_id properties depending on how they are retrieved
+              return (
+                <div key={instance.id} className='instance'>
+                  <p>Id: {instance.id}</p>
+                  <p>Text: {instance.text}</p>
+                  <p>Posted By: {instance.postedBy}</p>
+                </div>
+              )
+            } else {
+              return (
+                <div key={instance.id} className='instance'>
+                  <p>Id: {instance.id}</p>
+                  <p>Text: {instance.text}</p>
+                  <p>User Id: {instance.user_id}</p>
+                </div>
+              )
+            }
+          })}
         </div>
-        <div className='buttonContainer'>
-          <button onClick={getAllUsers}>Get All Users</button>
-          <button onClick={getUserById}>Get User By Id</button>
-          <button onClick={getPostsByUserId}>Get Posts By User Id</button>
-          <button onClick={postNewUser}>Post New User</button>
-          <button onClick={postNewPost}>Post New Post</button>
-          <button onClick={deleteUser}>Delete User</button>
-          <button onClick={editUser}>Edit User</button>
-          <button onClick={getAllPosts}>Get All Posts</button>
-          <button onClick={getPostById}>Get Post By Id</button>
-          <button onClick={deletePost}>Delete Post</button>
-          <button onClick={editPost}>Edit Post</button>
-        </div>
-      </div>
-      {/* render data */}
-      {dataToRender.map(instance => {
-        // will render if instance is a user
-        if (instance.name){
-          return (
-            <div key={instance.id} className='instance'>
-              <p>Id: {instance.id}</p>
-              <p>Name: {instance.name}</p>
-            </div>
-          )
-        } else if (instance.message){ // will render if instance is a message object
-          return (
-            <div key={instance.message} className='instance'>
-              <p>Message: {instance.message}</p>
-            </div>
-          )
-        } else if (instance.postedBy){ // posts can have postedBy or user_id properties depending on how they are retrieved
-          return (
-            <div key={instance.id} className='instance'>
-              <p>Id: {instance.id}</p>
-              <p>Text: {instance.text}</p>
-              <p>Posted By: {instance.postedBy}</p>
-            </div>
-          )
-        } else {
-          return (
-            <div key={instance.id} className='instance'>
-              <p>Id: {instance.id}</p>
-              <p>Text: {instance.text}</p>
-              <p>User Id: {instance.user_id}</p>
-            </div>
-          )
-        }
-      })}
-    </div>
+      </Route>
+      <Route path='/userinfo/:id'>
+        <UserInfo dataToRender={dataToRender} clickedUser={clickedUser}/>
+      </Route>
+    </Switch>
   )
 }
 
