@@ -6,6 +6,7 @@ const router = express.Router()
 
 // These routes have a base url of http://localhost:7000/api/posts
 
+// gets all posts
 router.get('/', (req, res) => {
   postData.get()
     .then(allPosts => {
@@ -17,6 +18,7 @@ router.get('/', (req, res) => {
     })
 })
 
+// returns post with a specified id
 router.get('/:id', validatePostId, (req, res) => {
   postData.getById(req.params.id)
     .then(singlePost => {
@@ -28,7 +30,7 @@ router.get('/:id', validatePostId, (req, res) => {
     })
 })
 
-router.delete('/:id', validatePostId, validatePost, (req, res) => {
+router.delete('/:id', validatePostId, (req, res) => {
   postData.remove(req.params.id)
     .then(numberOfDeletedPosts => {
       // only returns a confirmation message
