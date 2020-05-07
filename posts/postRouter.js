@@ -6,7 +6,14 @@ const router = express.Router()
 // These routes have a base url of http://localhost:7000/api/posts
 
 router.get('/', (req, res) => {
-  // do your magic!
+  postData.get()
+    .then(allPosts => {
+      // returns all users
+      res.status(200).json(allPosts)
+    })
+    .catch(() =>{
+      res.status(500).json({ message: 'The posts could not be retrieved from the database.' })
+    })
 })
 
 router.get('/:id', (req, res) => {
