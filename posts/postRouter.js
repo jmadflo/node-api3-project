@@ -16,7 +16,7 @@ router.get('/', (req, res) => {
     })
 })
 
-router.get('/:id', (req, res) => {
+router.get('/:id', validatePostId, (req, res) => {
   postData.getById(req.params.id)
     .then(singlePost => {
       // returns the one post with an id of req.user.id
@@ -27,8 +27,19 @@ router.get('/:id', (req, res) => {
     })
 })
 
-router.delete('/:id', (req, res) => {
-  // do your magic!
+router.delete('/:id', validatePostId, (req, res) => {
+  postData.remove(req.params.id)
+    .then(numberOfDeletedPosts => {
+      // only returns a confirmation message
+      if (numberOfDeletedPosts === 1){
+        res.status(200).json({ message: `The post with an id of ${req.params.id} was deleted from the database.` })
+      } else {
+        res.status(500).json({ message: `The post with an id of ${req.params.id} could not be deleted from the database.` })
+      }
+    })
+    .catch(() => {
+      res.status(500).json({ message: `The post with an id of ${req.params.id} could not be deleted from the database.` })
+    })
 })
 
 router.put('/:id', (req, res) => {

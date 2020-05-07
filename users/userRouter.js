@@ -73,9 +73,13 @@ router.get('/:id/posts', validateUserId, (req, res) => {
 // deletes user with an id of req.params.id
 router.delete('/:id', validateUserId, (req, res) => {
   userData.remove(req.params.id)
-    .then(() => {
+    .then(numberOfDeletedUsers => {
       // only returns a confirmation message
-      res.status(200).json({ message: `The user with an id of ${req.params.id} was deleted from the database.` })
+      if (numberOfDeletedUsers === 1){
+        res.status(200).json({ message: `The user with an id of ${req.params.id} was deleted from the database.` })
+      } else {
+        res.status(500).json({ message: `The user with an id of ${req.params.id} could not be deleted from the database.` })
+      }
     })
     .catch(() => {
       res.status(500).json({ message: `The user with an id of ${req.params.id} could not be deleted from the database.` })
